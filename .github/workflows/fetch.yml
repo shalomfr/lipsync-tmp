@@ -1,0 +1,23 @@
+name: fetch
+on:
+  workflow_dispatch:
+    inputs:
+      items:
+        description: "name=url pairs separated by spaces"
+        required: true
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p out
+          for it in ${{ github.event.inputs.items }}; do
+            n="${it%%=*}"; u="${it#*=}"
+            curl -fsSL "$u" -o "out/$n"
+            ls -la "out/$n"
+          done
+          git config user.name fetch-bot; git config user.email bot@example.com
+          git add out && git commit -m "fetched" && git push
